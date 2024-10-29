@@ -45,19 +45,19 @@ function knightMoves(start, end) {
     const path = [];
     // adjacency list for visited nodes
     const visited = [];
-    visited.push(start);
+    let current = [];
+    visited[start[0]] = [start[1]];
     const board = new Graph();
     // Start building what to push to the PATH array
+    // manually build start
     let pathEntry = [];
-    // nextPath contains the adjacency list
     pathEntry.push(board.buildGraph(start));
     path.push(pathEntry);
-
 
     
     // grab the next paths from the PATH array
 
-    for (let k = 0; k < 2; k++) { // testing loop
+    while (true) { // testing loop
         pathEntry = [];
         const entry = path[path.length - 1];
         for (const item of entry) {
@@ -65,7 +65,7 @@ function knightMoves(start, end) {
             for (const coord of item[1]) {
                 if (coord != null) {
                     for (let j = 0; j < coord.length; j++) {
-                        const current = [i, coord[j]];
+                        current = [i, coord[j]];
 
                         // only visit non-visited nodes
                         if (!visited[current[0]] || !visited[current[0]].includes(current[1])) {
@@ -74,9 +74,12 @@ function knightMoves(start, end) {
                         }
                         // check if we found the end
                         if (current[0] === end[0] && current[1] === end[1]) {
-                            console.log('PATH FOUND!!!!');
-                            path.push(pathEntry);
-                            return path;
+                            const { steps, final } = getPath(path, end);
+                            console.log(`=> You made it in ${steps} moves! Here's your path:`);
+                            for (let i = 0; i < final.length; i++) {
+                                console.log(`  [${final[i]}]`);
+                            }
+                            return;
                         }
                     }
                 }
@@ -85,19 +88,23 @@ function knightMoves(start, end) {
         }
         path.push(pathEntry);
     }
+}
 
+function getPath(pathArray, end) {
+    const result = [];
+    result.push(end);
+    let current = end.slice();
+    for (let i = pathArray.length - 1; i >= 0; i--) {
+        const path = pathArray[i];
+        for (const item of path) {
+            if (item[1][current[0]] && item[1][current[0]].includes(current[1])) {
+                result.push(item[0]);
+                current = item[0];
+            }
+        }
+    }
 
-
-    return path;
-
-    // let pos = start;
-    // let i = 0;
-
-    // while (pos[0] != end[0] && pos[1] != end[1]) {
-    //     path.push(pos);
-    //     path.push(board.buildGraph(pos));
-    // }
-    //return path;
+    return { steps: result.length - 1, final: result.reverse() };
 }
 
 // helper function to visualize path array
@@ -118,26 +125,11 @@ function printPath(arr) {
     }
 }
 
-// NOTE: make PATH object(array) with 3 entries (previous position, possible next positions, total distance)
-// e.g. [3, 3], 
-// [
-//   <1 empty item>,
-//   [ 4, 2 ],
-//   [ 5, 1 ],
-//   <1 empty item>,
-//   [ 5, 1 ],
-//   [ 4, 2 ]
-// ]
 
-const test = new Graph();
-//console.log(test.buildGraph([2, 1]));
-const result = knightMoves([0, 0], [3, 3]);
-printPath(result);
-// console.log(result);
-// console.log(JSON.stringify(result));
+knightMoves([3, 3], [4, 3]);
 
-// const arr1 = [1, 1];
-// const arr2 = [1, 1];
-// if (arr1[0] === arr2[0] && arr1[1] === arr2[1]) {
-//     console.log('true');
+// const { steps, path } = knightMoves([3, 3], [4, 3]);
+// console.log(`=> You made it in ${steps} moves! Here's your path:`);
+// for (let i = 0; i < path.length; i++) {
+//     console.log(`  [${path[i]}]`);
 // }
