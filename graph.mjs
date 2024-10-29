@@ -67,17 +67,12 @@ function knightMoves(start, end) {
                     for (let j = 0; j < coord.length; j++) {
                         const current = [i, coord[j]];
 
-                        let visitedFlag = false;
-                        for (const place of visited) {
-                            if (current[0] === place[0] && current[1] === place[1]) {
-                                visitedFlag = true;
-                            }
-                        }
-                        if (!visitedFlag) {
+                        // only visit non-visited nodes
+                        if (!visited[current[0]] || !visited[current[0]].includes(current[1])) {
                             pathEntry.push(board.buildGraph(current));
-                            visited.push(current);
+                            (!visited[current[0]]) ? visited[current[0]] = [current[1]] : visited[current[0]].push(current[1]);
                         }
-
+                        // check if we found the end
                         if (current[0] === end[0] && current[1] === end[1]) {
                             console.log('PATH FOUND!!!!');
                             path.push(pathEntry);
