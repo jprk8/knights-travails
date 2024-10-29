@@ -24,13 +24,14 @@ class Graph {
         moves.push([x + 1, y - 2]);
         // filter only valid moves
         const validMoves = moves.filter((pos) => pos[0] >= 0 && pos[0] <= 7 && pos[1] >= 0 && pos[1] <= 7);
-        // console.log(validMoves);
-        // store the validMoves to adjacency list
+
         // clear the adjacency on each move
         this.arr = [];
+        // store the validMoves to adjacency list
         for (const pos of validMoves) {
             (!this.arr[pos[0]]) ? this.arr[pos[0]] = [pos[1]] : this.arr[pos[0]].push(pos[1])
         }
+        
         // return current position and possible moves from it
         return [pos, this.arr];
     }
@@ -42,8 +43,9 @@ class Graph {
 
 function knightMoves(start, end) {
     const path = [];
-    const queue = [];
-    queue.push(start);
+    // adjacency list for visited nodes
+    const visited = [];
+    visited.push(start);
     const board = new Graph();
     // Start building what to push to the PATH array
     let pathEntry = [];
@@ -51,25 +53,44 @@ function knightMoves(start, end) {
     pathEntry.push(board.buildGraph(start));
     path.push(pathEntry);
 
-    pathEntry = [];
-    let i = 0;
+
+    
     // grab the next paths from the PATH array
-    // will not work for path with multiple entries..for of again?
-    const entry = path[path.length - 1];
-    console.log(entry);
-    for (const item of entry) {
-        for (const coord of item[1]) {
-            if (coord != null) {
-                for (let j = 0; j < coord.length; j++) {
-                    const current = [i, coord[j]];
-                    pathEntry.push(new Graph().buildGraph(current));
+
+    for (let k = 0; k < 2; k++) { // testing loop
+        pathEntry = [];
+        const entry = path[path.length - 1];
+        for (const item of entry) {
+            let i = 0;
+            for (const coord of item[1]) {
+                if (coord != null) {
+                    for (let j = 0; j < coord.length; j++) {
+                        const current = [i, coord[j]];
+
+                        let visitedFlag = false;
+                        for (const place of visited) {
+                            if (current[0] === place[0] && current[1] === place[1]) {
+                                visitedFlag = true;
+                            }
+                        }
+                        if (!visitedFlag) {
+                            pathEntry.push(board.buildGraph(current));
+                            visited.push(current);
+                        }
+
+                        if (current[0] === end[0] && current[1] === end[1]) {
+                            console.log('PATH FOUND!!!!');
+                            path.push(pathEntry);
+                            return path;
+                        }
+                    }
                 }
+                i++;
             }
-            i++;
         }
+        path.push(pathEntry);
     }
 
-    path.push(pathEntry);
 
 
     return path;
@@ -82,6 +103,24 @@ function knightMoves(start, end) {
     //     path.push(board.buildGraph(pos));
     // }
     //return path;
+}
+
+// helper function to visualize path array
+function printPath(arr) {
+    console.log('Printing PATH');
+    let index = 0;
+    for (const entry of arr) {
+        console.log(`==================PATH Index: ${index}==================`);
+        let i = 0;
+        for (const item of entry) {
+            console.log(`--PATH Entry index: ${i}`);
+            console.log(`----Origin coord: ${item[0]}`);
+            console.log(`----Adjacency Array:`);
+            console.log(item[1]);
+            i++;
+        }
+        index++;
+    }
 }
 
 // NOTE: make PATH object(array) with 3 entries (previous position, possible next positions, total distance)
@@ -97,9 +136,10 @@ function knightMoves(start, end) {
 
 const test = new Graph();
 //console.log(test.buildGraph([2, 1]));
-const result = knightMoves([0, 0], [1, 2]);
-console.log(result);
-console.log(JSON.stringify(result));
+const result = knightMoves([0, 0], [3, 3]);
+printPath(result);
+// console.log(result);
+// console.log(JSON.stringify(result));
 
 // const arr1 = [1, 1];
 // const arr2 = [1, 1];
